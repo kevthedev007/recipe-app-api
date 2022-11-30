@@ -13,6 +13,7 @@ class RegisterUserView(generics.CreateAPIView):
 class EmailTokenObtainPairView(TokenObtainPairView):
   serializer_class = TokenObtainPairSerializer
   
+#Manage User View
 class ManageUserView(generics.RetrieveUpdateAPIView):
   serializer_class = UserSerializer
   authentication_classes = [authentication.JWTAuthentication]
