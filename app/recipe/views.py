@@ -3,11 +3,12 @@ from rest_framework import mixins
 from rest_framework.permissions import IsAuthenticated
 from rest_framework_simplejwt.authentication import JWTAuthentication
 
-from core.models import Recipe, Tag
+from core.models import Recipe, Tag, Ingredient
 from recipe.serializers import (
   RecipeSerializer, 
   RecipeDetailSerializer,
-  TagSerializer
+  TagSerializer, 
+  IngredientSerializer,
 )
 
 
@@ -15,7 +16,7 @@ class RecipeViewSet(ModelViewSet):
   '''View for managing Recipe APIs'''
   queryset = Recipe.objects.all()
   serializer_class = RecipeDetailSerializer
-  authentication_classes = [JWTAuthentication]
+  sauthentication_classes = [JWTAuthentication]
   permission_classes = [IsAuthenticated]
   lookup_field = 'pk'
   
@@ -30,19 +31,25 @@ class RecipeViewSet(ModelViewSet):
   def perform_create(self, serializer):
     serializer.save(user=self.request.user)
     
-  
-class TagViewSet(
-  mixins.CreateModelMixin,
+
+class RecipeBaseAttrViewSet(
   mixins.ListModelMixin,
-  mixins.RetrieveModelMixin,
   mixins.UpdateModelMixin,
   mixins.DestroyModelMixin,
   GenericViewSet
 ):
-  queryset = Tag.objects.all()
-  serializer_class = TagSerializer
   authentication_classes = [JWTAuthentication]
   permission_classes = [IsAuthenticated]
-  
+
   def get_queryset(self):
     return self.queryset.filter(user=self.request.user).order_by('-name')
+  
+  
+class TagViewSet(RecipeBaseAttrViewSet):
+  queryset = Tag.objects.all()
+  serializer_class = TagSerializer
+
+class IngredientViewSet(RecipeBaseAttrViewSet):
+  queryset = Ingredient.objects.all()
+  serializer_class = IngredientSerializer
+  
